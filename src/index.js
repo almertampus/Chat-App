@@ -16,9 +16,18 @@ app.use(express.static(publicDirectoryPath))
 io.on('connection', (socket) => {
     console.log('New WebSocket connection')
 
-    // detects if a new user has joined, and inform other users in the conversation
-    socket.emit('message', generateMessage('Welcome to the conversation!'))
-    socket.broadcast.emit('message', generateMessage('A new user has joined the conversation!'))
+    socket.on('join', ({ username, room }) => {
+        socket.join(room)
+
+        // detects if a new user has joined, and inform other users in the conversation
+        socket.emit('message', generateMessage('Welcome to the conversation!'))
+        socket.broadcast.to(room).emit('message', generateMessage(`${username} has joined the conversation!`))
+
+        // detects if a user has leave the conversation
+        socket.on('disconnect', () => {
+            io.emit('message', generateMessage(`${username} has left the conversation!`))
+        })
+    })
 
     // receives a message from a user, and sends back that message to other users in the
     socket.on('sendMessage', (message, callback) => {
@@ -28,7 +37,7 @@ io.on('connection', (socket) => {
             return callback('Profanity is not allowed.')
         }
 
-        io.emit('message', generateMessage(message))
+        io.to('Manila').emit('message', generateMessage(message))
         callback()
     })
 
@@ -38,10 +47,7 @@ io.on('connection', (socket) => {
         callback()
     })
 
-    // detects if a user has leave the conversation
-    socket.on('disconnect', () => {
-        io.emit('message', generateMessage('A user has left the conversation.'))
-    })
+
 })
 
 server.listen(port, () => {
