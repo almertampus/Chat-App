@@ -9,8 +9,8 @@ document.querySelector('#messageForm').addEventListener('submit', (e) => {
 
     let msg = e.target.elements.msg.value
 
-    socket.emit('replyMessage', msg, () => {
-        console.log('The message was delivered.')
+    socket.emit('replyMessage', msg, (message) => {
+        console.log(message)
     })
 
     // clears the input field after sending the message

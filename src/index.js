@@ -23,7 +23,7 @@ io.on('connection', (socket) => {
     // receives a message from a user, and sends back that message to other users in the
     socket.on('replyMessage', (msg, callback) => {
         io.emit('message', msg)
-        callback()
+        callback('Delivered!')
     })
 
     // receives a location from a user, and sends back that location to other users in the conversation
