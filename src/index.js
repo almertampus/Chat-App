@@ -15,28 +15,28 @@ app.use(express.static(publicDirectoryPath))
 io.on('connection', (socket) => {
     console.log('New WebSocket connection')
 
-    const msg = 'Welcome to the conversation!'
+    const message = 'Welcome to the conversation!'
 
     // detects if a new user has joined, and inform other users in the conversation
-    socket.emit('message', msg)
+    socket.emit('message', message)
     socket.broadcast.emit('message', 'A new user has joined the conversation!')
 
     // receives a message from a user, and sends back that message to other users in the
-    socket.on('sendMessage', (msg, callback) => {
+    socket.on('sendMessage', (message, callback) => {
         const filter = new Filter()
 
-        if (filter.isProfane(msg)) {
+        if (filter.isProfane(message)) {
             return callback('Profanity is not allowed.')
         }
 
-        io.emit('message', msg)
+        io.emit('message', message)
         callback()
     })
 
     // receives a location from a user, and sends back that location to other users in the conversation
-    socket.on('sendLocation', (coordinates, callback) => {
-        io.emit('location', `https://google.com/maps?q=${coordinates.latitude},${coordinates.longitude}`)
-        callback('Location shared!')
+    socket.on('locationMessage', (coordinates, callback) => {
+        io.emit('locationMessage', `https://google.com/maps?q=${coordinates.latitude},${coordinates.longitude}`)
+        callback()
     })
 
     // detects if a user has leave the conversation

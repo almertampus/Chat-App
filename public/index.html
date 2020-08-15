@@ -8,12 +8,27 @@
   <body>
     <h3>Chat Application</h3>
 
+    <div id="messages"></div>
+
     <form id="message-form" action="">
       <input id="message-form-input" type="text" placeholder="Message" />
       <button id="message-form-send">Send</button>
     </form>
     <br />
+
     <button id="location-send">Send location</button>
+
+    <script id="message-template" type="text/html">
+      <div>
+        <p>{{message}}</p>
+      </div>
+    </script>
+
+    <script id="location-template" type="text/html">
+      <div>
+        <a href="{{location}}" target="_blank">Location</a>
+      </div>
+    </script>
 
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.min.js"></script>
