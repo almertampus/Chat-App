@@ -9,8 +9,12 @@ document.querySelector('#messageForm').addEventListener('submit', (e) => {
 
     let msg = e.target.elements.msg.value
 
-    socket.emit('replyMessage', msg, (message) => {
-        console.log(message)
+    socket.emit('replyMessage', msg, (error) => {
+        if (error) {
+            return console.log(error)
+        }
+
+        console.log('Message delivered!')
     })
 
     // clears the input field after sending the message
@@ -26,6 +30,8 @@ document.querySelector('#send-location').addEventListener('click', () => {
         socket.emit('sendLocation', {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude
+        }, () => {
+            console.log('Location shared!')
         })
     })
 })

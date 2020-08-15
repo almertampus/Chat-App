@@ -2,6 +2,7 @@ const path = require('path')
 const http = require('http')
 const express = require('express')
 const socketio = require('socket.io')
+const Filter = require('bad-words')
 
 const app = express()
 const server = http.createServer(app)
@@ -22,13 +23,20 @@ io.on('connection', (socket) => {
 
     // receives a message from a user, and sends back that message to other users in the
     socket.on('replyMessage', (msg, callback) => {
+        const filter = new Filter()
+
+        if (filter.isProfane(msg)) {
+            return callback('Profanity is not allowed.')
+        }
+
         io.emit('message', msg)
-        callback('Delivered!')
+        callback()
     })
 
     // receives a location from a user, and sends back that location to other users in the conversation
-    socket.on('sendLocation', (coordinates) => {
+    socket.on('sendLocation', (coordinates, callback) => {
         io.emit('location', `https://google.com/maps?q=${coordinates.latitude},${coordinates.longitude}`)
+        callback('Location shared!')
     })
 
     // detects if a user has leave the conversation
