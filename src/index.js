@@ -22,7 +22,7 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('message', 'A new user has joined the conversation!')
 
     // receives a message from a user, and sends back that message to other users in the
-    socket.on('replyMessage', (msg, callback) => {
+    socket.on('sendMessage', (msg, callback) => {
         const filter = new Filter()
 
         if (filter.isProfane(msg)) {
