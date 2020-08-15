@@ -3,6 +3,7 @@ const http = require('http')
 const express = require('express')
 const socketio = require('socket.io')
 const Filter = require('bad-words')
+const { generateMessage, generateLocationMessage } = require('./utils/messages')
 
 const app = express()
 const server = http.createServer(app)
@@ -15,11 +16,9 @@ app.use(express.static(publicDirectoryPath))
 io.on('connection', (socket) => {
     console.log('New WebSocket connection')
 
-    const message = 'Welcome to the conversation!'
-
     // detects if a new user has joined, and inform other users in the conversation
-    socket.emit('message', message)
-    socket.broadcast.emit('message', 'A new user has joined the conversation!')
+    socket.emit('message', generateMessage('Welcome to the conversation!'))
+    socket.broadcast.emit('message', generateMessage('A new user has joined the conversation!'))
 
     // receives a message from a user, and sends back that message to other users in the
     socket.on('sendMessage', (message, callback) => {
@@ -29,19 +28,19 @@ io.on('connection', (socket) => {
             return callback('Profanity is not allowed.')
         }
 
-        io.emit('message', message)
+        io.emit('message', generateMessage(message))
         callback()
     })
 
     // receives a location from a user, and sends back that location to other users in the conversation
     socket.on('locationMessage', (coordinates, callback) => {
-        io.emit('locationMessage', `https://google.com/maps?q=${coordinates.latitude},${coordinates.longitude}`)
+        io.emit('locationMessage', generateLocationMessage(`https://google.com/maps?q=${coordinates.latitude},${coordinates.longitude}`))
         callback()
     })
 
     // detects if a user has leave the conversation
     socket.on('disconnect', () => {
-        io.emit('message', 'A user has left the conversation.')
+        io.emit('message', generateMessage('A user has left the conversation.'))
     })
 })
 
