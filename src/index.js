@@ -40,18 +40,20 @@ io.on('connection', (socket) => {
     // receives a message from a user, and sends back that message to other users in the
     socket.on('sendMessage', (message, callback) => {
         const filter = new Filter()
+        const user = getUser(socket.id)
 
         if (filter.isProfane(message)) {
             return callback('Profanity is not allowed.')
         }
 
-        io.to('harvard').emit('message', generateMessage(message))
+        io.to(user.room).emit('message', generateMessage(message))
         callback()
     })
 
     // receives a location from a user, and sends back that location to other users in the conversation
     socket.on('locationMessage', (coordinates, callback) => {
-        io.emit('locationMessage', generateLocationMessage(`https://google.com/maps?q=${coordinates.latitude},${coordinates.longitude}`))
+        const user = getUser(socket.id)
+        io.to(user.room).emit('locationMessage', generateLocationMessage(`https://google.com/maps?q=${coordinates.latitude},${coordinates.longitude}`))
         callback()
     })
 
