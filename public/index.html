@@ -20,5 +20,27 @@
         </form>
       </div>
     </div>
+
+    <script id="message-template" type="text/html">
+      <div class="message">
+        <p>
+          <span class="message__name">Some user</span>
+          <span class="message__meta">{{createdAt}}</span>
+        </p>
+        <p>{{message}}</p>
+      </div>
+    </script>
+
+    <script id="location-template" type="text/html">
+      <div>
+        <p>
+          <span class="message__name">Some user</span>
+          <span class="message__meta">{{createdAt}}</span>
+        </p>
+        <p>
+          <a href="{{location}}" target="_blank">My Location</a>
+        </p>
+      </div>
+    </script>
   </body>
 </html>
