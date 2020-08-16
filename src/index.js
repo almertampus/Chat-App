@@ -4,6 +4,7 @@ const express = require('express')
 const socketio = require('socket.io')
 const Filter = require('bad-words')
 const { generateMessage, generateLocationMessage } = require('./utils/messages')
+const { addUser, removeUser, getUser, getUsersInRoom } = require(('./utils/users'))
 
 const app = express()
 const server = http.createServer(app)
@@ -16,17 +17,24 @@ app.use(express.static(publicDirectoryPath))
 io.on('connection', (socket) => {
     console.log('New WebSocket connection')
 
-    socket.on('join', ({ username, room }) => {
-        socket.join(room)
+    socket.on('join', ({ username, room }, callback) => {
+        const { error, user } = addUser({
+            id: socket.id,
+            username,
+            room
+        })
+
+        if (error) {
+            return callback(error)
+        }
+
+        socket.join(user.room)
 
         // detects if a new user has joined, and inform other users in the conversation
         socket.emit('message', generateMessage('Welcome to the conversation!'))
-        socket.broadcast.to(room).emit('message', generateMessage(`${username} has joined the conversation!`))
+        socket.broadcast.to(user.room).emit('message', generateMessage(`${user.username} has joined!`))
 
-        // detects if a user has leave the conversation
-        socket.on('disconnect', () => {
-            io.emit('message', generateMessage(`${username} has left the conversation!`))
-        })
+        callback()
     })
 
     // receives a message from a user, and sends back that message to other users in the
@@ -37,7 +45,7 @@ io.on('connection', (socket) => {
             return callback('Profanity is not allowed.')
         }
 
-        io.to('Manila').emit('message', generateMessage(message))
+        io.to('harvard').emit('message', generateMessage(message))
         callback()
     })
 
@@ -47,7 +55,14 @@ io.on('connection', (socket) => {
         callback()
     })
 
+    // detects if a user has leave the conversation
+    socket.on('disconnect', () => {
+        const user = removeUser(socket.id)
 
+        if (user) {
+            io.to(user.room).emit('message', generateMessage(`${user.username} has left!`))
+        }
+    })
 })
 
 server.listen(port, () => {
